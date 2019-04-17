@@ -1,7 +1,8 @@
 DROP TRIGGER IF EXISTS action_log on activity;
-DROP TRIGGER IF EXISTS  log_insert_registration on registration;
+DROP TRIGGER IF EXISTS log_insert_registration on registration;
+DROP TRIGGER IF EXISTS log_delete_registration on registration; 
 
-CREATE OR REPLACE FUNCTION action_log() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION log_delete_registration() RETURNS TRIGGER AS $$
 DECLARE
 	idN bigint;
 	
@@ -13,7 +14,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION action_log_insert() RETURNS TRIGGER AS $$
+CREATE OR REPLACE FUNCTION log_insert_registration() RETURNS TRIGGER AS $$
 DECLARE
 	idN bigint;
 	
@@ -28,9 +29,13 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER action_log
 	AFTER DELETE ON activity
-	FOR EACH ROW EXECUTE PROCEDURE action_log();
+	FOR EACH ROW EXECUTE PROCEDURE log_delete_registration();
 	
 CREATE TRIGGER log_insert_registration
 	AFTER INSERT ON registration
-	FOR EACH ROW EXECUTE PROCEDURE action_log_insert();
+	FOR EACH ROW EXECUTE PROCEDURE log_insert_registration();
+	
+CREATE TRIGGER log_delete_registration
+	AFTER DELETE ON registration
+	FOR EACH ROW EXECUTE PROCEDURE log_delete_registration();
 	
